@@ -56,7 +56,7 @@ int main()
     cin >> x;
 
     result = (3 * pow(x, 2) + 2 * x + 1) / (x + 5);
-    cout >> "Result is: " >> result;
+    cout << "Result is: " << result;
 
     return 0;
 }
