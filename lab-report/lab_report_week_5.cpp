@@ -3,7 +3,7 @@ using namespace std;
 
 
 void verifyVoter(){
-    int age = -50;
+    int age = -2893;
     char selection = 'Z';
 
     while (age < 0) {

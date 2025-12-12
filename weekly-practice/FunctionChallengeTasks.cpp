@@ -41,17 +41,16 @@ int main(){
         cout << "Number is not Prime" << endl;
     }
 
-
     // celcius coversion code here =>
-    float celciusValue;
-    float newValue;
-    cout << "Enter temperature to convert: ";
-    cin >> celciusValue;
+    // float celciusValue;
+    // float newValue;
+    // cout << "Enter temperature to convert: ";
+    // cin >> celciusValue;
 
-    newValue = convertToFarenheit(celciusValue);
+    // newValue = convertToFarenheit(celciusValue);
 
-    cout << "Temparature in Celcius: " << celciusValue << endl;
-    cout << "Temparature in Farenheit: " << newValue << endl;
+    // cout << "Temparature in Celcius: " << celciusValue << endl;
+    // cout << "Temparature in Farenheit: " << newValue << endl;
 
     return 0;
 }
