@@ -35,10 +35,6 @@ void laamLele(int lambayi){
 //     return 0;
 // }
 
-#include <iostream>
-#include <string>
-using namespace std;
-
 void hollowLeftTraingle(int length){
     for(int i = 1; i <= length; i++){
         if(i <= 2 || i == length){
