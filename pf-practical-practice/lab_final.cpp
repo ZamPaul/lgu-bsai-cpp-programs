@@ -4,6 +4,30 @@
 
 using namespace std;
 
+int getInteger(string prompt, bool positive = false){
+    int input;
+    cout << prompt;
+    cin >> input;
+
+    if(positive && input<0){
+        while(input<0){
+            cout << "Please enter a positive value: ";
+            cin >> input;
+        }
+    }
+
+    return input;
+}
+
+string getString(string prompt){
+    string input;
+    cout << prompt;
+    cin.ignore();
+    getline(cin, input);
+
+    return input;
+}
+
 struct Subject{
     string code;
     string name;
@@ -52,15 +76,8 @@ float calculatePercentage(int total){
 }
 
 int main(){
-    int size;
     int numOfSubjects = 2;
-    cout << "Enter the number of students: ";
-    cin >> size;
-
-    while(size <= 0){
-        cout << "Enter positive number of students: ";
-        cin >> size;
-    }
+    int size = getInteger("Enter number of students: ", true);
 
     Student students[size];
 
@@ -70,10 +87,7 @@ int main(){
     for(int i=0; i<size; i++){
         cout << "Enter details of Student " << i+1 << ": \n"; 
 
-        cout << "Enter name: ";
-        cin.ignore();
-        getline(cin, students[i].name);
-
+        students[i].name = getString("Enter Name: ");
         students[i].rollNo = i+1;
 
         // input data for all the subjects
@@ -82,23 +96,12 @@ int main(){
         for(int j=0; j<numOfSubjects; j++){
             cout << "Enter details of Subject " << j+1 << ": \n"; 
 
-            cout << "Enter subject name: ";
-            cin.ignore();
-            getline(cin, students[i].subjects[j].name);
+            students[i].subjects[j].name = getString("Enter Subject Name: ");
+            students[i].subjects[j].code = getString("Enter Subject Code: ");
+            students[i].subjects[j].credits = getString("Enter Subject Credits: ");
 
-            cout << "Enter subject code: ";
-            cin.ignore();
-            getline(cin, students[i].subjects[j].code);
-
-            cout << "Enter subject credits: ";
-            cin.ignore();
-            getline(cin, students[i].subjects[j].credits);
-
-            cout << "Enter internal marks: ";
-            cin >> students[i].subjects[j].internalMarks;
-
-            cout << "Enter end semester marks: ";
-            cin >> students[i].subjects[j].semesterMarks;
+            students[i].subjects[j].internalMarks = getInteger("Enter internal marks: ", true);
+            students[i].subjects[j].semesterMarks = getInteger("Enter end semester marks: ", true);
             
             cout << "   \n";
         }
