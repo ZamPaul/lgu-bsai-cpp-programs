@@ -50,7 +50,7 @@ struct Subject{
 
     float getTotalMarks(){
         // calculate aggregate of internal and external marks 
-        return (internalMarks + semesterMarks)/2;        
+        return static_cast<float>(internalMarks + semesterMarks)/2;        
     }
 };
 
@@ -150,7 +150,7 @@ int main(){
             students[i].subjects[j].name = getString("Enter Subject Name: ");
             students[i].subjects[j].code = getString("Enter Subject Code: ");
 
-            students[i].subjects[j].credits = getInteger("Enter Subject Credits: ");
+            students[i].subjects[j].credits = getInteger("Enter Subject Credits: ", true);
             students[i].subjects[j].internalMarks = getInteger("Enter internal marks: ", true);
             students[i].subjects[j].semesterMarks = getInteger("Enter end semester marks: ", true);
             
