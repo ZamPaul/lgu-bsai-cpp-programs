@@ -1,39 +1,57 @@
 #include <iostream>
 #include <algorithm>
 #include <limits>
+#include <vector>
 
 using namespace std;
 
 int getInteger(string prompt, bool positive = false){
     int input;
-    cout << prompt;
-    cin >> input;
 
-    if(positive && input<0){
-        while(input<0){
-            cout << "Please enter a positive value: ";
-            cin >> input;
+    while(true){
+        cout << prompt;
+        // incase of any string or other data type input
+        if(!(cin >> input)){
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid Input! Please enter a numeric value.\n";
+        }else if(positive && input<0){
+            cout << "Error! Please enter a positive value\n"; 
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }else{
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return input;
         }
     }
-
-    return input;
 }
 
 string getString(string prompt){
     string input;
-    cout << prompt;
-    cin.ignore();
-    getline(cin, input);
 
-    return input;
+    while(true){
+        cout << prompt;
+        getline(cin, input);
+        // if input is empty space
+        if(input.empty()){
+            cout << "Input cannot be empty! Try again: \n";
+            continue;
+        }
+
+        return input;
+    }
 }
 
 struct Subject{
     string code;
     string name;
-    string credits;
+    int credits;
     int internalMarks;
     int semesterMarks;
+
+    float getTotalMarks(){
+        // calculate aggregate of internal and external marks 
+        return (internalMarks + semesterMarks)/2;        
+    }
 };
 
 struct Student{
@@ -41,7 +59,39 @@ struct Student{
     string name;
     Subject subjects[2];
     string grade;
-    int totalMarks;
+    float totalMarks;
+
+    float calculateTotalMarks(){
+        float total = 0;
+        int nOfSubs = sizeof(subjects) / sizeof(subjects[0]);
+        for( int i=0; i<nOfSubs; i++ ){
+            total += subjects[i].getTotalMarks();
+        }
+
+        return total;
+    }
+
+    float calculatePercentage(){
+        int nOfSubs = sizeof(subjects) / sizeof(subjects[0]);
+        return static_cast<float>(totalMarks) / (nOfSubs*100) * 100;
+    }
+
+    string evaluateGrade(){
+        float per = calculatePercentage();
+        string g;
+
+        if(per >= 80){
+            g = "A";
+        }else if(per >= 65){
+            g = "B";
+        }else if(per >= 50){
+            g = "C";
+        }else{
+            g = "F";
+        }
+
+        return g;
+    }
 };
 
 void printBoard(Student students[], int size, int subjects){
@@ -61,18 +111,19 @@ void printBoard(Student students[], int size, int subjects){
     cout << "--------------------------------\n";
 }
 
-int calculateTotal(Subject subjects[], int size){
-    int total = 0;
+Student findTopper(Student students[], int size){
+    // finding topper student
+    int highest = -1;
+    Student topper;
 
     for(int i=0; i<size; i++){
-        total += subjects[i].internalMarks + subjects[i].semesterMarks;   
+        if(students[i].totalMarks > highest){
+            highest = students[i].totalMarks;
+            topper = students[i];
+        }
     }
 
-    return total;
-}
-
-float calculatePercentage(int total){
-    return static_cast<float>(total)/200 * 100;
+    return topper;
 }
 
 int main(){
@@ -98,8 +149,8 @@ int main(){
 
             students[i].subjects[j].name = getString("Enter Subject Name: ");
             students[i].subjects[j].code = getString("Enter Subject Code: ");
-            students[i].subjects[j].credits = getString("Enter Subject Credits: ");
 
+            students[i].subjects[j].credits = getInteger("Enter Subject Credits: ");
             students[i].subjects[j].internalMarks = getInteger("Enter internal marks: ", true);
             students[i].subjects[j].semesterMarks = getInteger("Enter end semester marks: ", true);
             
@@ -107,42 +158,32 @@ int main(){
         }
 
         // calculate marks for the currect student
-        int totalMarks = calculateTotal(students[i].subjects, numOfSubjects);
+        float totalMarks = students[i].calculateTotalMarks();
         
         // save total marks in the structure
         students[i].totalMarks = totalMarks;
 
-        // retrieve percentage for grade
-        float per = calculatePercentage(totalMarks);
+        // evaluate grade and save grade in structure
+        string grade = students[i].evaluateGrade();
 
-        if(per >= 80){
+        // save grade in structure
+        students[i].grade = grade;
+
+        // increments grades counts
+        if(grade == "A"){
             countA += 1;
-            students[i].grade = "A";
-        }else if(per >= 65){
+        }else if(grade == "B"){
             countB += 1;
-            students[i].grade = "B";
-        }else if(per >= 50){
+        }else if(grade == "C"){
             countC += 1;
-            students[i].grade = "C";
         }else{
             countF += 1;
-            students[i].grade = "F";
         }
-
     }
 
     printBoard(students, size, numOfSubjects);
 
-    // finding topper student
-    int highest = -1;
-    Student topper;
-
-    for(int i=0; i<size; i++){
-        if(students[i].totalMarks > highest){
-            highest = students[i].totalMarks;
-            topper = students[i];
-        }
-    }
+    Student topper = findTopper(students, size);
 
     cout << "--------Academic Results--------\n";
     cout << countA << " students got Grade A\n";
