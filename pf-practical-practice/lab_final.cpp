@@ -1,11 +1,9 @@
 #include <iostream>
-#include <algorithm>
 #include <limits>
-#include <vector>
 
 using namespace std;
 
-int getInteger(string prompt, bool positive = false){
+int getInteger(string prompt, string range = "positive", int min = -1, int max = -1){
     int input;
 
     while(true){
@@ -15,8 +13,14 @@ int getInteger(string prompt, bool positive = false){
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Invalid Input! Please enter a numeric value.\n";
-        }else if(positive && input<0){
+        }else if(range == "positive" && input<0){
             cout << "Error! Please enter a positive value\n"; 
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }else if(range == "negative" && input>0){
+            cout << "Error! Please enter a negative value\n"; 
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }else if(range == "custom" && (input>max || input<min)){
+            cout << "Error! Please enter a value between " << min << " and " << max << "!\n";
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }else{
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -128,7 +132,7 @@ Student findTopper(Student students[], int size){
 
 int main(){
     int numOfSubjects = 2;
-    int size = getInteger("Enter number of students: ", true);
+    int size = getInteger("Enter number of students: ", "positive");
 
     Student students[size];
 
@@ -150,9 +154,9 @@ int main(){
             students[i].subjects[j].name = getString("Enter Subject Name: ");
             students[i].subjects[j].code = getString("Enter Subject Code: ");
 
-            students[i].subjects[j].credits = getInteger("Enter Subject Credits: ", true);
-            students[i].subjects[j].internalMarks = getInteger("Enter internal marks: ", true);
-            students[i].subjects[j].semesterMarks = getInteger("Enter end semester marks: ", true);
+            students[i].subjects[j].credits = getInteger("Enter Subject Credits: ", "custom", 1, 100);
+            students[i].subjects[j].internalMarks = getInteger("Enter internal marks: ", "custom", 1, 100);
+            students[i].subjects[j].semesterMarks = getInteger("Enter end semester marks: ", "custom", 1, 100);
             
             cout << "   \n";
         }
