@@ -1,5 +1,8 @@
 #include <iostream>
 #include <limits>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -50,8 +53,8 @@ string getString(string prompt){
 }
 
 struct Subject{
-    string code;
     string name;
+    string code;
     int credits;
     int internalMarks;
     int semesterMarks;
@@ -65,14 +68,15 @@ struct Subject{
 struct Student{
     int rollNo;
     string name;
-    Subject subjects[2];
+    vector<Subject> subjects;
     string grade;
     float totalMarks;
 
     float calculateTotalMarks(){
         float total = 0;
-        int nOfSubs = sizeof(subjects) / sizeof(subjects[0]);
-        for( int i=0; i<nOfSubs; i++ ){
+        // int nOfSubs = sizeof(subjects) / sizeof(subjects[0]);
+        int size = subjects.size();
+        for( int i=0; i<size; i++ ){
             total += subjects[i].getTotalMarks();
         }
 
@@ -80,8 +84,9 @@ struct Student{
     }
 
     float calculatePercentage(){
-        int nOfSubs = sizeof(subjects) / sizeof(subjects[0]);
-        return static_cast<float>(totalMarks) / (nOfSubs*100) * 100;
+        // int nOfSubs = sizeof(subjects) / sizeof(subjects[0]);
+        int size = subjects.size();
+        return static_cast<float>(totalMarks) / (size*100) * 100;
     }
 
     string evaluateGrade(){
@@ -102,10 +107,12 @@ struct Student{
     }
 };
 
-Student findTopper(Student students[], int size){
+Student findTopper(vector<Student>& students){
     // finding topper student
     float highest = -1;
     Student topper;
+
+    int size = students.size();
 
     for(int i=0; i<size; i++){
         if(students[i].totalMarks > highest){
@@ -117,9 +124,11 @@ Student findTopper(Student students[], int size){
     return topper;
 }
 
-Student findLowestMarks(Student students[], int size){
+Student findLowestMarks(vector<Student>& students){
     float lowest = 99999; 
     Student s;
+
+    int size = students.size();
     
     for(int i=0; i<size; i++){
         if(students[i].totalMarks < lowest){
@@ -145,25 +154,95 @@ void showMainMenu(){
 }
 
 // menu functions
-void displayAllStudents(){
-    // cout << "--------Academic Board--------\n";
-    // for(int i=0; i<size; i++){
-    //     cout << "Student Roll No: " << students[i].rollNo << "\n";
-    //     cout << "Name: " << students[i].name << "\n"; 
-    //     cout << "Student Grade: " << students[i].grade << "\n";
-    //     cout << "Total: " << students[i].totalMarks << "\n";
+void readAllStudents(vector<Student>& students){
+    // opening the file
+    ifstream inFile("D:/c++/student-system/students.txt");
 
-    //     cout << "---Subjects Details---\n";
-    //     for(int j=0; j<subjects; j++){
-    //         cout << "Subject Name: " << students[i].subjects[j].name << ", Internal Marks: " << students[i].subjects[j].internalMarks << ", End Semester Marks: " << students[i].subjects[j].semesterMarks << "\n";
-    //     }
-    //     cout << "----------------------\n";
-    // }
-    // cout << "--------------------------------\n";
+    if(!inFile){
+        cout << "File could not be opened!";
+        return;
+    }
+
+    string line;
+
+    while(getline(inFile, line)){
+        // make a new student
+        Student s;
+
+        stringstream ss(line);
+        string token;
+
+        getline(ss, token, '|');
+        int rollNo = stoi(token);
+        s.rollNo = rollNo;
+
+        getline(ss, token, '|');
+        string name = token;
+        s.name = name;
+
+        for(int i = 0; i < 2; i++){
+            getline(ss, token, '|');
+            stringstream sub(token);
+
+            string subName, subCode, credits, internal, sem;
+            getline(sub, subName, ',');
+            getline(sub, subCode, ',');
+            getline(sub, credits, ',');
+            getline(sub, internal, ',');
+            getline(sub, sem, ',');
+
+            Subject newSubject = {subName, subCode, stoi(credits), stoi(internal), stoi(sem)};
+            s.subjects.push_back(newSubject);
+        }
+
+        getline(ss, token, '|');
+        s.totalMarks = static_cast<float>(stoi(token));
+
+        getline(ss, token, '|');
+        s.grade = token;
+
+        students.push_back(s);
+    }
+
+    inFile.close();
+    
+}
+
+void displayAllStudents(vector<Student>& students){
+    int size = students.size();
+    cout << "\nSize of students vector" << size << endl;
+
+    if(size==0){
+        cout << "--- No Records found ---\n";
+    }else{
+        cout << "--- Students Records ---\n";
+        for(int i=0; i<size; i++){
+            cout << "Roll No: " << students[i].rollNo << "\n";
+            cout << "Name: " << students[i].name << "\n";
+            cout << "Grade: " << students[i].grade << "\n";
+            cout << "Total Marks: " << students[i].totalMarks << "\n";
+
+            cout << "Subjects: \n";
+            for(int j=0; j<2; j++){
+                cout << students[i].subjects[j].name << "(" << students[i].subjects[j].code << ") - "
+                    << "Credits: " << students[i].subjects[j].credits 
+                    << ", Internal Marks: " << students[i].subjects[j].internalMarks 
+                    << ", Semester Marks: " << students[i].subjects[j].semesterMarks << "\n"; 
+            }
+
+            cout << "---------------------\n";
+        }
+    }
+   
+    // for(int i; )
+}
+
+void showSearchMenu(){
+    cout << "";
 }
 
 void searchStudent(){
-
+    
 }
 
 void addNewStudent(){
@@ -220,6 +299,18 @@ void addNewStudent(){
 
 }
 
+void writeFile(){
+    ofstream outFile("D:/c++/student-system/students.txt", ios::app);
+
+    if (!outFile) {
+        cout << "Error: File could not be opened for writing!" << endl;
+    }
+
+    outFile<<"thanks for everything";
+
+    outFile.close();
+}
+
 void updateStudent(){
     
 }
@@ -237,6 +328,8 @@ void evaluateGradeStatistics(){
 }
 
 int main(){
+    vector<Student> students;
+
     showMainMenu();
 
     while(true){
@@ -244,7 +337,8 @@ int main(){
         
         switch(choice){
             case 1:
-                displayAllStudents();
+                readAllStudents(students);
+                displayAllStudents(students);
                 break;
             case 2:
                 searchStudent();
