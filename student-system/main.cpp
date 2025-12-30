@@ -144,7 +144,7 @@ Student findLowestMarks(vector<Student>& students){
 void showMainMenu(){
     cout << "--- Welcome to Our Student Management ---\n";
     cout << "1. Display all Students\n";
-    cout << "2. Search a single Student\n";
+    cout << "2. Search a Student\n";
     cout << "3. Add a new Student\n";
     cout << "4. Update a student record\n";
     cout << "5. Delete a student record\n";
@@ -210,7 +210,7 @@ void readAllStudents(vector<Student>& students){
 
 void displayAllStudents(vector<Student>& students){
     int size = students.size();
-    cout << "\nSize of students vector" << size << endl;
+    // cout << "\nSize of students vector" << size << endl;
 
     if(size==0){
         cout << "--- No Records found ---\n";
@@ -238,11 +238,83 @@ void displayAllStudents(vector<Student>& students){
 }
 
 void showSearchMenu(){
-    cout << "";
+    cout << "----- Search Menu -----\n";
+    cout << "1. Search student by Roll No\n";
+    cout << "2. Search student by Name\n";
+    cout << "3. Exit\n";
 }
 
-void searchStudent(){
-    
+int searchStudentByRollNo(vector<Student>& students){
+    int rollNo = getInteger("Enter the roll no, you want search: ", "positive");
+
+    for(int i=0; i<students.size(); i++){
+        if(students[i].rollNo == rollNo){
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int searchStudentByName(vector<Student>& students){
+    string name = getString("Enter student name, you want search: ");
+
+    for(int i=0; i<students.size(); i++){
+        if(students[i].name == name){
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void displayStudent(Student s){
+    cout << "----------------------------\n";
+    cout << "Roll No: " << s.rollNo << "\n";
+    cout << "Name: " << s.name << "\n";
+    cout << "Grade: " << s.grade << "\n";
+    cout << "Total Marks: " << s.totalMarks << "\n";
+
+    cout << "Subjects: \n";
+    for(int j=0; j<2; j++){
+        cout << s.subjects[j].name << "(" << s.subjects[j].code << ") - "
+            << "Credits: " << s.subjects[j].credits 
+            << ", Internal Marks: " << s.subjects[j].internalMarks 
+            << ", Semester Marks: " << s.subjects[j].semesterMarks << "\n"; 
+    }  
+    cout << "----------------------------\n";
+}
+
+void searchStudent(vector<Student>& students){
+    showSearchMenu();
+
+    while(true){
+        int choice = getInteger("Enter your choice for aearch(1-3): ", "custom", 1, 3);
+        int idx;
+        
+        switch(choice){
+            case 1:
+                idx = searchStudentByRollNo(students);
+                break;
+            case 2:
+                idx = searchStudentByName(students);
+                break;
+            default:
+                break;
+        }
+
+        if(idx == -1){
+            cout << "--- No records found ---\n";
+        }else{
+            displayStudent(students[idx]);
+        }
+
+        if(choice == 3){
+            cout << "Exiting search menu!\n";
+            cout << "Back to main menu.\n";
+            break;
+        }
+    }
 }
 
 void addNewStudent(){
@@ -300,15 +372,7 @@ void addNewStudent(){
 }
 
 void writeFile(){
-    ofstream outFile("D:/c++/student-system/students.txt", ios::app);
 
-    if (!outFile) {
-        cout << "Error: File could not be opened for writing!" << endl;
-    }
-
-    outFile<<"thanks for everything";
-
-    outFile.close();
 }
 
 void updateStudent(){
@@ -341,7 +405,9 @@ int main(){
                 displayAllStudents(students);
                 break;
             case 2:
-                searchStudent();
+                students.clear();
+                readAllStudents(students);
+                searchStudent(students);
                 break;
             case 3:
                 addNewStudent();
@@ -368,24 +434,6 @@ int main(){
         }
 
     }
-
-    // inputing data from user
-
-    // printBoard(students, size, numOfSubjects);
-
-    // Student topper = findTopper(students, size);
-
-    // cout << "--------Academic Results--------\n";
-    // cout << countA << " students got Grade A\n";
-    // cout << countB << " students got Grade B\n";
-    // cout << countC << " students got Grade C\n";
-    // cout << countF << " students got Grade F\n";
-    // cout << "--------Top Position Holder Details--------\n";
-    // cout << "Roll No: " << topper.rollNo << "\n";
-    // cout << "Name: " << topper.name << "\n";
-    // cout << "Total Marks: " << topper.totalMarks << "\n";
-    // cout << "Grade: " << topper.grade << "\n";
-    // cout << "-------------------------------------------\n";
     
     return 0;
 }
