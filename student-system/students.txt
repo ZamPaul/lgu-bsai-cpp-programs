@@ -1,3 +1,4 @@
-1|Ali Khan|Math,MTH101,3,78,82|Physics,PHY101,4,70,75|76.25|B
-2|Sara Ahmed|Programming,CS101,4,88,92|Math,MTH101,3,85,80|86.25|A
-3|Usman Raza|English,ENG101,2,55,60|History,HIS101,3,58,62|58.75|C
+2|Sara Ahmed|Programming,CS101,4,88,92,|Math,MTH101,3,85,80,|86|A
+3|Usman Raza|English,ENG101,2,55,60,|History,HIS101,3,58,62,|58|C
+5|John Zamiel|ENGLISH,HH555,89,99,77,|PF,GG444,89,88,98,|181|A
+8|Paul John|PF,JHG66,87,78,89,|ENGLISH,HH666,78,90,89,|173|A

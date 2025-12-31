@@ -19,15 +19,15 @@ int getInteger(string prompt, string range = "positive", int min = -1, int max =
         if(!(cin >> input)){
             cin.clear();
             clearBuffer();
-            cout << "Invalid Input! Please enter a numeric value.\n";
+            cout << "❌ Invalid Input! Please enter a numeric value.\n";
         }else if(range == "positive" && input<0){
-            cout << "Error! Please enter a positive value\n"; 
+            cout << "❌ Error! Please enter a positive value\n"; 
             clearBuffer();
         }else if(range == "negative" && input>0){
-            cout << "Error! Please enter a negative value\n"; 
+            cout << "❌ Error! Please enter a negative value\n"; 
             clearBuffer();
         }else if(range == "custom" && (input>max || input<min)){
-            cout << "Error! Please enter a value between " << min << " and " << max << "!\n";
+            cout << "❌ Error! Please enter a value between " << min << " and " << max << "!\n";
             clearBuffer();
         }else{
             clearBuffer();
@@ -44,7 +44,7 @@ string getString(string prompt){
         getline(cin, input);
         // if input is empty space
         if(input.empty()){
-            cout << "Input cannot be empty! Try again: \n";
+            cout << "❌ Input cannot be empty! Try again: \n";
             continue;
         }
 
@@ -107,23 +107,6 @@ struct Student{
     }
 };
 
-Student findTopper(vector<Student>& students){
-    // finding topper student
-    float highest = -1;
-    Student topper;
-
-    int size = students.size();
-
-    for(int i=0; i<size; i++){
-        if(students[i].totalMarks > highest){
-            highest = students[i].totalMarks;
-            topper = students[i];
-        }
-    }
-
-    return topper;
-}
-
 Student findLowestMarks(vector<Student>& students){
     float lowest = 99999; 
     Student s;
@@ -142,7 +125,7 @@ Student findLowestMarks(vector<Student>& students){
 
 // for displaying main menuu
 void showMainMenu(){
-    cout << "--- Welcome to Our Student Management ---\n";
+    cout << "--- Welcome to Our Student Management System ---\n";
     cout << "1. Display all Students\n";
     cout << "2. Search a Student\n";
     cout << "3. Add a new Student\n";
@@ -209,14 +192,11 @@ void readAllStudents(vector<Student>& students){
 }
 
 void displayAllStudents(vector<Student>& students){
-    int size = students.size();
-    // cout << "\nSize of students vector" << size << endl;
-
-    if(size==0){
+    if(students.empty()){
         cout << "--- No Records found ---\n";
     }else{
         cout << "--- Students Records ---\n";
-        for(int i=0; i<size; i++){
+        for(int i=0; i<students.size(); i++){
             cout << "Roll No: " << students[i].rollNo << "\n";
             cout << "Name: " << students[i].name << "\n";
             cout << "Grade: " << students[i].grade << "\n";
@@ -244,9 +224,7 @@ void showSearchMenu(){
     cout << "3. Exit\n";
 }
 
-int searchStudentByRollNo(vector<Student>& students){
-    int rollNo = getInteger("Enter the roll no, you want search: ", "positive");
-
+int searchStudentByRollNo(vector<Student>& students, int rollNo){
     for(int i=0; i<students.size(); i++){
         if(students[i].rollNo == rollNo){
             return i;
@@ -256,9 +234,7 @@ int searchStudentByRollNo(vector<Student>& students){
     return -1;
 }
 
-int searchStudentByName(vector<Student>& students){
-    string name = getString("Enter student name, you want search: ");
-
+int searchStudentByName(vector<Student>& students, string name){
     for(int i=0; i<students.size(); i++){
         if(students[i].name == name){
             return i;
@@ -268,7 +244,7 @@ int searchStudentByName(vector<Student>& students){
     return -1;
 }
 
-void displayStudent(Student s){
+void displayStudent(Student& s){
     cout << "----------------------------\n";
     cout << "Roll No: " << s.rollNo << "\n";
     cout << "Name: " << s.name << "\n";
@@ -289,18 +265,26 @@ void searchStudent(vector<Student>& students){
     showSearchMenu();
 
     while(true){
-        int choice = getInteger("Enter your choice for aearch(1-3): ", "custom", 1, 3);
-        int idx;
+        int choice = getInteger("Enter your choice for search(1-3): ", "custom", 1, 3);
+        int idx = -1;
+
+        int rollNo;
+        string name;
         
         switch(choice){
             case 1:
-                idx = searchStudentByRollNo(students);
+                rollNo = getInteger("Enter the roll no, you want search: ", "positive"); 
+                idx = searchStudentByRollNo(students, rollNo);
                 break;
             case 2:
-                idx = searchStudentByName(students);
+                name = getString("Enter student name, you want search: ");
+                idx = searchStudentByName(students, name);
                 break;
             default:
-                break;
+                cout << "Exiting search menu!\n";
+                cout << "Back to main menu.\n";
+                // end the function
+                return;
         }
 
         if(idx == -1){
@@ -308,87 +292,262 @@ void searchStudent(vector<Student>& students){
         }else{
             displayStudent(students[idx]);
         }
+    }
+}
 
-        if(choice == 3){
-            cout << "Exiting search menu!\n";
-            cout << "Back to main menu.\n";
+void writeNewStudent(Student s){
+    ofstream outFile("D:/c++/student-system/students.txt", ios::app);
+
+    if(!outFile){
+        cout << "Error opening file!\n";
+        return;
+    }
+
+    outFile << s.rollNo << "|";
+    outFile << s.name << "|";
+    
+    for(int i=0; i<2; i++){
+        outFile << s.subjects[i].name << ","
+                << s.subjects[i].code << ","
+                << s.subjects[i].credits << ","
+                << s.subjects[i].internalMarks << ","
+                << s.subjects[i].semesterMarks << "," 
+                << "|";
+    } 
+
+    outFile << s.totalMarks << "|";
+    outFile << s.grade << "\n";
+
+    outFile.close();
+
+    cout << "---- Student added successfully -----\n";
+}
+
+bool rollNoExists(vector<Student>& students, int rollNo){
+    for(int i=0; i<students.size(); i++){
+        if(students[i].rollNo == rollNo){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void addNewStudent(vector<Student>& students){
+    cout << "--- Add New Student ---\n";
+    Student s;
+
+    while(true){
+        s.rollNo = getInteger("Enter roll No: ", "positive");
+        
+        if(rollNoExists(students, s.rollNo)){
+            cout << "❌ Roll number already exists! Try another.\n";
+        }else{
             break;
         }
     }
-}
+    
+    s.name = getString("Enter Name: "); 
 
-void addNewStudent(){
-    int numOfSubjects = 2;
-    int size = getInteger("Enter number of students: ", "positive");
-    Student students[size];
-    int countA = 0, countB = 0, countC = 0, countF = 0;
+    cout << "--- Please enter Subject Details ---\n";
+    cout << "\n";
+    for(int i=0; i<2; i++){
+        cout << "Subject " << i+1 << ": \n";
+        Subject sub;
+        sub.name = getString("Enter subject name: ");
+        sub.code = getString("Enter subject code: ");
 
-    for(int i=0; i<size; i++){
-        cout << "Enter details of Student " << i+1 << ": \n"; 
+        sub.credits = getInteger("Enter credits: ", "custom", 1, 100);
+        sub.internalMarks = getInteger("Enter internal marks: ", "custom", 1, 100);
+        sub.semesterMarks = getInteger("Enter end semester marks: ", "custom", 1, 100);
 
-        students[i].name = getString("Enter Name: ");
-        students[i].rollNo = i+1;
-
-        // input data for all the subjects
-        // let's take 5 as an example here
-        cout << "-------Subject Details-------\n";
-        for(int j=0; j<numOfSubjects; j++){
-            cout << "Enter details of Subject " << j+1 << ": \n"; 
-
-            students[i].subjects[j].name = getString("Enter Subject Name: ");
-            students[i].subjects[j].code = getString("Enter Subject Code: ");
-
-            students[i].subjects[j].credits = getInteger("Enter Subject Credits: ", "custom", 1, 100);
-            students[i].subjects[j].internalMarks = getInteger("Enter internal marks: ", "custom", 1, 100);
-            students[i].subjects[j].semesterMarks = getInteger("Enter end semester marks: ", "custom", 1, 100);
-            
-            cout << "   \n";
-        }
-
-        // calculate marks for the currect student
-        float totalMarks = students[i].calculateTotalMarks();
-        
-        // save total marks in the structure
-        students[i].totalMarks = totalMarks;
-
-        // evaluate grade and save grade in structure
-        string grade = students[i].evaluateGrade();
-
-        // save grade in structure
-        students[i].grade = grade;
-
-        // increments grades counts
-        if(grade == "A"){
-            countA += 1;
-        }else if(grade == "B"){
-            countB += 1;
-        }else if(grade == "C"){
-            countC += 1;
-        }else{
-            countF += 1;
-        }
+        s.subjects.push_back(sub);
     }
 
+    s.totalMarks = s.calculateTotalMarks();
+    s.grade = s.evaluateGrade();
+
+    students.push_back(s);
+    
+    writeNewStudent(s);
 }
 
-void writeFile(){
-
+void showUpdateMenu(){
+    cout << "What do you want to update?\n";
+    cout << "1. Name\n";
+    cout << "2. Subjects & Marks\n";
+    cout << "3. Cancel\n";
 }
 
-void updateStudent(){
+void rewriteFile(vector<Student>& students, string msg){
+    ofstream outFile("D:/c++/student-system/students.txt");
+
+    if(!outFile){
+        cout << "Error opening file for updation!\n";
+        return;
+    }
+
+    for(const Student& s : students){
+        outFile << s.rollNo << "|";
+        outFile << s.name << "|";
+        
+        for(const Subject& sub : s.subjects){
+            outFile << sub.name << ","
+                    << sub.code << ","
+                    << sub.credits << ","
+                    << sub.internalMarks << ","
+                    << sub.semesterMarks << "," 
+                    << "|";
+        } 
+
+        outFile << s.totalMarks << "|";
+        outFile << s.grade << "\n";
+    }
+
+    outFile.close();
+
+    cout << msg;
     
 }
 
-void deleteStudent(){
+void updateStudent(vector<Student>& students){
+    if(students.empty()){
+        cout << "--- No records to update ---\n";
+        return;
+    }
 
+    int rollNo = getInteger("Enter Roll Number to update: ", "positive");
+
+    int idx = searchStudentByRollNo(students, rollNo);
+
+    if(idx == -1){
+        cout << "Student not found!\n";
+        return;
+    }
+
+    Student& s = students[idx];
+
+    cout << "--- Current Record ---\n";
+    displayStudent(s);
+
+    showUpdateMenu();
+
+    int choice = getInteger("Enter your choice(1-3): ", "custom", 1, 3);
+
+    switch(choice){
+        case 1:
+            s.name = getString("Enter new name: "); 
+            break;
+        case 2:
+            s.subjects.clear();
+
+            for(int i = 0; i < 2; i++){
+                cout << "Subject " << i + 1 << ":\n";
+
+                Subject sub;
+                sub.name = getString("Enter subject name: ");
+                sub.code = getString("Enter subject code: ");
+                sub.credits = getInteger("Enter credits: ", "custom", 1, 100);
+                sub.internalMarks = getInteger("Enter internal marks: ", "custom", 1, 100);
+                sub.semesterMarks = getInteger("Enter semester marks: ", "custom", 1, 100);
+
+                s.subjects.push_back(sub);
+            }
+
+            s.totalMarks = s.calculateTotalMarks();
+            s.grade = s.evaluateGrade();   
+
+            break;
+        case 3:
+            cout << "Update cancelled!\n";
+            return;
+    }
+
+    rewriteFile(students, "✅ Student record updated successfully\n");
+
+    cout << "Exiting update menu!\n";
+    
 }
 
-void findTopper(){
+void deleteStudent(vector<Student>& students){
+    if(students.empty()){
+        cout << "--- No records to delete ---\n";
+        return;
+    }
 
+    int rollNo = getInteger("Enter Roll Number to delete: ", "positive");
+
+    int idx = searchStudentByRollNo(students, rollNo);
+
+    if(idx == -1){
+        cout << "Student not found!\n";
+        return;
+    }
+
+    cout << "--- Student Record Found ---\n";
+    displayStudent(students[idx]);
+
+    cout << "Are you sure you want to delete this record?\n";
+    cout << "1. Confirm ✅\n";
+    cout << "2. Cancel ❌\n";
+
+    int choice = getInteger("Enter choice (1-2): ", "custom", 1, 2);
+    
+    switch(choice){
+        case 1:
+            students.erase(students.begin() + idx);
+            break;
+        default:
+            cout << "Deletion Cancelled\n";
+            return;
+    }
+
+    rewriteFile(students, "🗑️ Student record deleted successfully.\n");
 }
 
-void evaluateGradeStatistics(){
+void findTopper(vector<Student>& students){
+    if(students.empty()){
+        cout << "--- No records found ---\n";
+        return;
+    }
 
+    Student topper = students[0];
+
+    for(const Student& s : students){
+        if(s.totalMarks > topper.totalMarks){
+            topper = s;
+        }
+    }
+
+    cout << "--- Topper Student ---";
+    displayStudent(topper);
+}
+
+void evaluateGradeStatistics(vector<Student>& students){
+    if(students.empty()){
+        cout << "--- No records found ---\n";
+        return;
+    }
+
+    int countA = 0, countB = 0, countC = 0, countF = 0;
+
+    for(const Student& s : students){
+        if(s.grade == "A"){
+            countA++;
+        }else if(s.grade == "B"){
+            countB++;
+        }else if(s.grade == "C"){
+            countC++;
+        }else if(s.grade == "F"){
+            countF++;
+        }
+    }
+
+    cout << "--- Grade Statistics ---\n";
+    cout << "Grade A: " << countA << "\n";
+    cout << "Grade B: " << countB << "\n";
+    cout << "Grade C: " << countC << "\n";
+    cout << "Grade F: " << countF << "\n";
 }
 
 int main(){
@@ -397,10 +556,11 @@ int main(){
     showMainMenu();
 
     while(true){
-        int choice = getInteger("Enter your choce(1 to 8): ", "custom", 1, 8);
+        int choice = getInteger("Enter your choice(1 to 8): ", "custom", 1, 8);
         
         switch(choice){
             case 1:
+                students.clear();
                 readAllStudents(students);
                 displayAllStudents(students);
                 break;
@@ -410,19 +570,29 @@ int main(){
                 searchStudent(students);
                 break;
             case 3:
-                addNewStudent();
+                students.clear();
+                readAllStudents(students);
+                addNewStudent(students);
                 break;
             case 4: 
-                updateStudent();
+                students.clear();
+                readAllStudents(students);
+                updateStudent(students);
                 break;
             case 5:
-                deleteStudent();
+                students.clear();
+                readAllStudents(students);
+                deleteStudent(students);
                 break;
             case 6:
-                findTopper();
+                students.clear();
+                readAllStudents(students);
+                findTopper(students);
                 break;
             case 7:
-                evaluateGradeStatistics();
+                students.clear();
+                readAllStudents(students);
+                evaluateGradeStatistics(students);
                 break;
             default:
                 break;
