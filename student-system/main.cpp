@@ -6,11 +6,14 @@
 
 using namespace std;
 
+const string FILE_PATH = "D:/c++/student-system/students.txt";
+const int SUBJECT_COUNT = 2;
+
 void clearBuffer(){
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-int getInteger(string prompt, string range = "positive", int min = -1, int max = -1){
+int getInteger(const string prompt, const string range = "positive", const int min = -1, const int max = -1){
     int input;
 
     while(true){
@@ -36,7 +39,7 @@ int getInteger(string prompt, string range = "positive", int min = -1, int max =
     }
 }
 
-string getString(string prompt){
+string getString(const string prompt){
     string input;
 
     while(true){
@@ -74,9 +77,7 @@ struct Student{
 
     float calculateTotalMarks(){
         float total = 0;
-        // int nOfSubs = sizeof(subjects) / sizeof(subjects[0]);
-        int size = subjects.size();
-        for( int i=0; i<size; i++ ){
+        for( int i=0; i<SUBJECT_COUNT; i++ ){
             total += subjects[i].getTotalMarks();
         }
 
@@ -84,9 +85,7 @@ struct Student{
     }
 
     float calculatePercentage(){
-        // int nOfSubs = sizeof(subjects) / sizeof(subjects[0]);
-        int size = subjects.size();
-        return static_cast<float>(totalMarks) / (size*100) * 100;
+        return static_cast<float>(totalMarks) / (SUBJECT_COUNT*100) * 100;
     }
 
     string evaluateGrade(){
@@ -107,22 +106,6 @@ struct Student{
     }
 };
 
-Student findLowestMarks(vector<Student>& students){
-    float lowest = 99999; 
-    Student s;
-
-    int size = students.size();
-    
-    for(int i=0; i<size; i++){
-        if(students[i].totalMarks < lowest){
-            lowest = students[i].totalMarks;
-            s = students[i];
-        }
-    }
-
-    return s;
-}
-
 // for displaying main menuu
 void showMainMenu(){
     cout << "--- Welcome to Our Student Management System ---\n";
@@ -132,14 +115,15 @@ void showMainMenu(){
     cout << "4. Update a student record\n";
     cout << "5. Delete a student record\n";
     cout << "6. Find topper\n";
-    cout << "7. Show grade statistics\n";
-    cout << "8. Exit\n";
+    cout << "7. Find student with the lowest marks\n";
+    cout << "8. Show grade statistics\n";
+    cout << "9. Exit\n";
 }
 
 // menu functions
 void readAllStudents(vector<Student>& students){
     // opening the file
-    ifstream inFile("D:/c++/student-system/students.txt");
+    ifstream inFile(FILE_PATH);
 
     if(!inFile){
         cout << "File could not be opened!";
@@ -163,7 +147,7 @@ void readAllStudents(vector<Student>& students){
         string name = token;
         s.name = name;
 
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < SUBJECT_COUNT; i++){
             getline(ss, token, '|');
             stringstream sub(token);
 
@@ -196,18 +180,18 @@ void displayAllStudents(vector<Student>& students){
         cout << "--- No Records found ---\n";
     }else{
         cout << "--- Students Records ---\n";
-        for(int i=0; i<students.size(); i++){
-            cout << "Roll No: " << students[i].rollNo << "\n";
-            cout << "Name: " << students[i].name << "\n";
-            cout << "Grade: " << students[i].grade << "\n";
-            cout << "Total Marks: " << students[i].totalMarks << "\n";
+        for(Student& s : students){
+            cout << "Roll No: " << s.rollNo << "\n";
+            cout << "Name: " << s.name << "\n";
+            cout << "Grade: " << s.grade << "\n";
+            cout << "Total Marks: " << s.totalMarks << "\n";
 
             cout << "Subjects: \n";
-            for(int j=0; j<2; j++){
-                cout << students[i].subjects[j].name << "(" << students[i].subjects[j].code << ") - "
-                    << "Credits: " << students[i].subjects[j].credits 
-                    << ", Internal Marks: " << students[i].subjects[j].internalMarks 
-                    << ", Semester Marks: " << students[i].subjects[j].semesterMarks << "\n"; 
+            for(Subject& sub : s.subjects){
+                cout << sub.name << "(" << sub.code << ") - "
+                    << "Credits: " << sub.credits 
+                    << ", Internal Marks: " << sub.internalMarks 
+                    << ", Semester Marks: " << sub.semesterMarks << "\n"; 
             }
 
             cout << "---------------------\n";
@@ -224,7 +208,7 @@ void showSearchMenu(){
     cout << "3. Exit\n";
 }
 
-int searchStudentByRollNo(vector<Student>& students, int rollNo){
+int searchStudentByRollNo(const vector<Student>& students, const int rollNo){
     for(int i=0; i<students.size(); i++){
         if(students[i].rollNo == rollNo){
             return i;
@@ -234,7 +218,7 @@ int searchStudentByRollNo(vector<Student>& students, int rollNo){
     return -1;
 }
 
-int searchStudentByName(vector<Student>& students, string name){
+int searchStudentByName(const vector<Student>& students, const string name){
     for(int i=0; i<students.size(); i++){
         if(students[i].name == name){
             return i;
@@ -244,7 +228,7 @@ int searchStudentByName(vector<Student>& students, string name){
     return -1;
 }
 
-void displayStudent(Student& s){
+void displayStudent(const Student& s){
     cout << "----------------------------\n";
     cout << "Roll No: " << s.rollNo << "\n";
     cout << "Name: " << s.name << "\n";
@@ -252,16 +236,16 @@ void displayStudent(Student& s){
     cout << "Total Marks: " << s.totalMarks << "\n";
 
     cout << "Subjects: \n";
-    for(int j=0; j<2; j++){
-        cout << s.subjects[j].name << "(" << s.subjects[j].code << ") - "
-            << "Credits: " << s.subjects[j].credits 
-            << ", Internal Marks: " << s.subjects[j].internalMarks 
-            << ", Semester Marks: " << s.subjects[j].semesterMarks << "\n"; 
+    for(Subject sub : s.subjects){
+        cout << sub.name << "(" << sub.code << ") - "
+            << "Credits: " << sub.credits 
+            << ", Internal Marks: " << sub.internalMarks 
+            << ", Semester Marks: " << sub.semesterMarks << "\n"; 
     }  
     cout << "----------------------------\n";
 }
 
-void searchStudent(vector<Student>& students){
+void searchStudent(const vector<Student>& students){
     showSearchMenu();
 
     while(true){
@@ -295,8 +279,8 @@ void searchStudent(vector<Student>& students){
     }
 }
 
-void writeNewStudent(Student s){
-    ofstream outFile("D:/c++/student-system/students.txt", ios::app);
+void writeNewStudent(Student& s){
+    ofstream outFile(FILE_PATH, ios::app);
 
     if(!outFile){
         cout << "Error opening file!\n";
@@ -306,12 +290,12 @@ void writeNewStudent(Student s){
     outFile << s.rollNo << "|";
     outFile << s.name << "|";
     
-    for(int i=0; i<2; i++){
-        outFile << s.subjects[i].name << ","
-                << s.subjects[i].code << ","
-                << s.subjects[i].credits << ","
-                << s.subjects[i].internalMarks << ","
-                << s.subjects[i].semesterMarks << "," 
+    for(Subject& sub : s.subjects){
+        outFile << sub.name << ","
+                << sub.code << ","
+                << sub.credits << ","
+                << sub.internalMarks << ","
+                << sub.semesterMarks << "," 
                 << "|";
     } 
 
@@ -323,9 +307,9 @@ void writeNewStudent(Student s){
     cout << "---- Student added successfully -----\n";
 }
 
-bool rollNoExists(vector<Student>& students, int rollNo){
-    for(int i=0; i<students.size(); i++){
-        if(students[i].rollNo == rollNo){
+bool rollNoExists(vector<Student>& students, const int rollNo){
+    for(Student& s : students){
+        if(s.rollNo == rollNo){
             return true;
         }
     }
@@ -351,7 +335,7 @@ void addNewStudent(vector<Student>& students){
 
     cout << "--- Please enter Subject Details ---\n";
     cout << "\n";
-    for(int i=0; i<2; i++){
+    for(int i=0; i<SUBJECT_COUNT; i++){
         cout << "Subject " << i+1 << ": \n";
         Subject sub;
         sub.name = getString("Enter subject name: ");
@@ -379,8 +363,8 @@ void showUpdateMenu(){
     cout << "3. Cancel\n";
 }
 
-void rewriteFile(vector<Student>& students, string msg){
-    ofstream outFile("D:/c++/student-system/students.txt");
+void rewriteFile(const vector<Student>& students, const string msg){
+    ofstream outFile(FILE_PATH);
 
     if(!outFile){
         cout << "Error opening file for updation!\n";
@@ -441,7 +425,7 @@ void updateStudent(vector<Student>& students){
         case 2:
             s.subjects.clear();
 
-            for(int i = 0; i < 2; i++){
+            for(int i = 0; i < SUBJECT_COUNT; i++){
                 cout << "Subject " << i + 1 << ":\n";
 
                 Subject sub;
@@ -505,7 +489,7 @@ void deleteStudent(vector<Student>& students){
     rewriteFile(students, "🗑️ Student record deleted successfully.\n");
 }
 
-void findTopper(vector<Student>& students){
+void findTopper(const vector<Student>& students){
     if(students.empty()){
         cout << "--- No records found ---\n";
         return;
@@ -523,7 +507,25 @@ void findTopper(vector<Student>& students){
     displayStudent(topper);
 }
 
-void evaluateGradeStatistics(vector<Student>& students){
+void findLowestMarks(const vector<Student>& students){
+    if(students.empty()){
+        cout << "--- No records found ---\n";
+        return;
+    }
+
+    Student currStudent = students[0];
+
+    for(const Student& s : students){
+        if(s.totalMarks < currStudent.totalMarks){
+            currStudent = s;
+        }
+    }
+
+    cout << "--- Student with the lowest marks ---";
+    displayStudent(currStudent);
+}
+
+void evaluateGradeStatistics(const vector<Student>& students){
     if(students.empty()){
         cout << "--- No records found ---\n";
         return;
@@ -543,11 +545,16 @@ void evaluateGradeStatistics(vector<Student>& students){
         }
     }
 
+    float perA = (static_cast<float>(countA) / students.size()) * 100;
+    float perB = (static_cast<float>(countB) / students.size()) * 100;
+    float perC = (static_cast<float>(countC) / students.size()) * 100;
+    float perF = (static_cast<float>(countF) / students.size()) * 100;
+
     cout << "--- Grade Statistics ---\n";
-    cout << "Grade A: " << countA << "\n";
-    cout << "Grade B: " << countB << "\n";
-    cout << "Grade C: " << countC << "\n";
-    cout << "Grade F: " << countF << "\n";
+    cout << "Grade A: " << countA << " (" << perA << "%)" << "\n";
+    cout << "Grade B: " << countB << " (" << perB << "%)" << "\n";
+    cout << "Grade C: " << countC << " (" << perC << "%)" << "\n";
+    cout << "Grade F: " << countF << " (" << perF * 100 << "%)" << "\n";
 }
 
 int main(){
@@ -590,6 +597,11 @@ int main(){
                 findTopper(students);
                 break;
             case 7:
+                students.clear();
+                readAllStudents(students);
+                findLowestMarks(students);
+                break;
+            case 8:
                 students.clear();
                 readAllStudents(students);
                 evaluateGradeStatistics(students);
