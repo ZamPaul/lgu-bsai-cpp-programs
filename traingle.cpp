@@ -52,12 +52,43 @@ void hollowLeftTraingle(int length){
     }
 }
 
+void star(int n) {
+    // Force odd number
+    if (n % 2 == 0) {
+        n++;
+    }
+
+    int mid = n / 2 + 1;
+
+    // Upper half (including middle)
+    for (int i = 1; i <= mid; i++) {
+        for (int space = 1; space <= mid - i; space++) {
+            cout << " ";
+        }
+        for (int star = 1; star <= 2 * i - 1; star++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+
+    // Lower half
+    for (int i = mid - 1; i >= 1; i--) {
+        for (int space = 1; space <= mid - i; space++) {
+            cout << " ";
+        }
+        for (int star = 1; star <= 2 * i - 1; star++) {
+            cout << "*";
+        }
+        cout << endl;
+    }
+}
+
 int main(){
     int length;
-    cout << "Enter the length of the traingle: ";
+    cout << "Enter the length of the star: ";
 
     cin >> length;
-    hollowLeftTraingle(length);
+    star(length);
 
     return 0;
 }

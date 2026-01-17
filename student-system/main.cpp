@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <limits>
 #include <fstream>
 #include <sstream>
@@ -280,7 +281,7 @@ void searchStudent(const vector<Student>& students){
 }
 
 void writeNewStudent(Student& s){
-    ofstream outFile(FILE_PATH, ios::app);
+    ofstream outFile(FILE_PATH);
 
     if(!outFile){
         cout << "Error opening file!\n";
@@ -352,7 +353,7 @@ void addNewStudent(vector<Student>& students){
     s.grade = s.evaluateGrade();
 
     students.push_back(s);
-    
+
     writeNewStudent(s);
 }
 
@@ -364,7 +365,7 @@ void showUpdateMenu(){
 }
 
 void rewriteFile(const vector<Student>& students, const string msg){
-    ofstream outFile(FILE_PATH);
+    ofstream outFile(FILE_PATH, ios::app);
 
     if(!outFile){
         cout << "Error opening file for updation!\n";
@@ -563,7 +564,7 @@ int main(){
     showMainMenu();
 
     while(true){
-        int choice = getInteger("Enter your choice(1 to 8): ", "custom", 1, 8);
+        int choice = getInteger("Enter your choice(1 to 9): ", "custom", 1, 9);
         
         switch(choice){
             case 1:
@@ -590,7 +591,7 @@ int main(){
                 students.clear();
                 readAllStudents(students);
                 deleteStudent(students);
-                break;
+                break; 
             case 6:
                 students.clear();
                 readAllStudents(students);
@@ -610,7 +611,7 @@ int main(){
                 break;
         }
 
-        if(choice == 8){
+        if(choice == 9){
             cout << "Exiting the Main Menu. GoodBye!";
             break;
         }

@@ -11,7 +11,6 @@ int main(){
     int a = 10; // value = 10  
     int* ptr1 = &a; // value = address of a
     int** ptr2 = &ptr1; // value = address of pointer prt1
-
     ptr1 += 20;
 
     // changeA(ptr1);
